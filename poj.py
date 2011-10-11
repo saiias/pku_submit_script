@@ -4,7 +4,7 @@
 import os
 import getpass
 import webbrowser
-#import subproccess
+import subprocess
 import re
 import cookielib
 import urllib
@@ -15,20 +15,20 @@ import cookielib
 import shutil
 from optparse import OptionParser
 
-usr='saiias'
+usr="saiias"
 
 class POJ:
     def __init__(self,options,problem_id):
         self.option=options
         self.problem_id = problem_id
-
         if options.show_status:
             return
         
         if options.titech:
-            self.proxy={'http':'http://proxy.noc.titech.ac.jp:3128'}
+            print "using Titech Procy"
+            self.proxies={'http':'http://proxy.noc.titech.ac.jp:3128'}
         else:
-            self.proxy=None
+            self.proxies=None
 
     def check(self,ans_path,output_path):
         return subprocess.call(['diff',ans_path,output_path,'y','--strip-trailing-cr','-W','79','-a','-d']) == 0
@@ -36,32 +36,33 @@ class POJ:
     def get_open(self):
         ck = cookielib.CookieJar()
         ckhdr = urllib2.HTTPCookieProcessor(ck)
-        if self.proxy == None:
+        if self.proxies == None:
             return urllib2.build_opener(ckhdr)
         else:
-            return  urllib2.build_opener(ckhdr, urllib2.ProxyHandler(self.proxy))
+            return  urllib2.build_opener(ckhdr, urllib2.ProxyHandler(self.proxies))
             
     def get_url(self):
         return 'http://acm.pku.edu.cn/JudgeOnline/problem?id='+self.problem_id
 
 
     def submit(self):
-        op = self.get_open()
+        opener = self.get_open()
         postdata = dict()
-        postdata['usr_id1'] = usr
-        password=getpass.getpass(prompt="Password:")
-        postdata['password1'] =password
-        parameter = urllib.urlencode(postdata)
-        proc = op.open('http://poj.org/login',parameter)
-        print 'Lognin ...' + str(proc.getcode())
+        postdata['user_id1'] = usr
+        usrpass=getpass.getpass(prompt="Password:")
+        postdata['password1'] =usrpass
+        params = urllib.urlencode(postdata)
+        p = opener.open('http://poj.org/login', params)
+
+        print 'Lognin ...' + str(p.getcode())
         postdata = dict()
         postdata['language'] = '0'
         postdata['problem_id'] = self.problem_id
         postdata['source'] =open(self.get_file_name()).read()
         postdata['submit'] ='Submit'
         parameter= urllib.urlencode(postdata)
-        proc=op.open('http://poj.org/submit',parameter)
-        print 'Submit ... ' + str(proc.getcode())
+        proc = opener.open('http://poj.org/submit', parameter)
+        print 'Submit ... ' + str(proc.geturl())
         
         time.sleep(2.0)
         self.show_status()
@@ -85,7 +86,8 @@ class POJ:
         return end_time - start_time
 
     def download(self):
-        html=urllib.urlopne('http://acm.pku.cn/JudgeOnline/problem?id='+self.problem_id,proxie=self.proxy).read()
+        html=urllib.urlopne('http://acm.pku.cn/JudgeOnline/problem?id='+self.problem_id,proxies=self.proxies).read()
+
         
         
 
