@@ -4,16 +4,18 @@
 import os
 import getpass
 import webbrowser
-import subproccess
+#import subproccess
+import re
 import cookielib
 import urllib
 import urllib2
 import getpass
 import time
-
+import cookielib
+import shutil
 from optparse import OptionParser
 
-usr='sa__i'
+usr='saiias'
 
 class POJ:
     def __init__(self,options,problem_id):
@@ -31,7 +33,7 @@ class POJ:
     def check(self,ans_path,output_path):
         return subprocess.call(['diff',ans_path,output_path,'y','--strip-trailing-cr','-W','79','-a','-d']) == 0
 
-    def get_open:
+    def get_open(self):
         ck = cookielib.CookieJar()
         ckhdr = urllib2.HTTPCookieProcessor(ck)
         if self.proxy == None:
@@ -42,34 +44,50 @@ class POJ:
     def get_url(self):
         return 'http://acm.pku.edu.cn/JudgeOnline/problem?id='+self.problem_id
 
-    def download(self):
-        return
 
-    def sunmit(self):
+    def submit(self):
         op = self.get_open()
-        data = dict()
-        data['usr_id'] = usr
-        password=getpass.getpas(prompt="Password:")
-        data['password'] =password
-        parameter = urllib.urlencode(posrdata)
-        proc = op.open('hhtp://poj.org/login',parameter)
-        print 'Lognin ...'
-
-        data = dict();
-        date['language'] = '0'
-        data['problem_id'] = usrpass
-        data['source'] = open(self.get_source_file_name()).read()
-        data['submit'] = 'Submit'
+        postdata = dict()
+        postdata['usr_id1'] = usr
+        password=getpass.getpass(prompt="Password:")
+        postdata['password1'] =password
+        parameter = urllib.urlencode(postdata)
+        proc = op.open('http://poj.org/login',parameter)
+        print 'Lognin ...' + str(proc.getcode())
+        postdata = dict()
+        postdata['language'] = '0'
+        postdata['problem_id'] = self.problem_id
+        postdata['source'] =open(self.get_file_name()).read()
+        postdata['submit'] ='Submit'
         parameter= urllib.urlencode(postdata)
-        p = opener.open('http://poj.org/submit', params)
-        print 'Submit ... '
-
-        time.sleep(1.5)
+        proc=op.open('http://poj.org/submit',parameter)
+        print 'Submit ... ' + str(proc.getcode())
+        
+        time.sleep(2.0)
         self.show_status()
         
     def show_status(self):
         webbrowser.open("http://poj.org/status?problem_id=&user_id="+usr+"&result=&language=")
 
+    def get_file_name(self):
+        return self.problem_id+'.cpp'
+        
+    def compile(self):
+        return subprocess.call(['g++','-O2','-o','a.out','-Wno-deprecated','-Wall',self.get_file_name]) == 0
+
+    def execute(self,input_file,output_file):
+        start_time = time.time();
+        p = subprocess.Popen(['./a.out'], stdin=open(input_file_path, 'r'), stdout=open(output_file_path, 'w'))
+        if p.wait() != 0:
+            print 'RuntimeError?'
+            exit(-1)
+        end_time = time.time()
+        return end_time - start_time
+
+    def download(self):
+        html=urllib.urlopne('http://acm.pku.cn/JudgeOnline/problem?id='+self.problem_id,proxie=self.proxy).read()
+        
+        
 
 def main():
     parser = OptionParser();
@@ -88,9 +106,13 @@ def main():
         parser.print_help()
         return
 
-    status = POJ(options,args)
-    status.show_status();
-    print "1"
+    status = POJ(options,args[0])
+#    status.show_status();
+
+    if options.submit:
+        status.submit()
+        return
+
 
     
 if __name__ == '__main__':
