@@ -13,6 +13,8 @@ import getpass
 import time
 import cookielib
 import shutil
+import popen2
+
 from optparse import OptionParser
 
 usr="saiias"
@@ -23,15 +25,59 @@ class POJ:
         self.problem_id = problem_id
         if options.show_status:
             return
-        
         if options.titech:
             print "using Titech Procy"
             self.proxies={'http':'http://proxy.noc.titech.ac.jp:3128'}
         else:
             self.proxies=None
 
-    def check(self,ans_path,output_path):
-        return subprocess.call(['diff',ans_path,output_path,'y','--strip-trailing-cr','-W','79','-a','-d']) == 0
+    def check_diff(self,ans_path,output_path):
+        return subprocess.call(['diff',ans_path,output_path,'-y','--strip-trailing-cr','-W','79','-a','-d']) == 0
+
+    def check(self):
+        print "Compile ... "
+        
+        if not self.compile():
+            print 'Compile Error'
+            exit(-1)
+            
+        print 'Download ... '
+        
+        self.download()
+        
+        p = re.compile('<pre class="sio">(.+?)</pre>',re.M|re.S|re.I)
+        result = p.findall(self.html)
+        for index in range(len(result)):
+            self.input_file= self.problem_id +'_in.txt'
+            self.output_file = self.problem_id +'_out.txt'
+            open(self.input_file,'w').write(self.make_file(result[0]))
+            open(self.output_file,'w').write(self.make_file(result[1]))
+            
+            exe_time = 0.0
+            
+            temp_time = self.execute(self.input_file,'result.txt')
+            
+
+
+        if exe_time > temp_time:
+            exe_time = temp_time
+
+        
+        if self.check_diff(self.output_file,'result.txt'):
+            print''
+            print 'OK'
+            print 'time: '+str(exe_time) + ' sec'
+        else:
+            print''
+            print 'WrongAnswer'
+            print 'time: '+str(exe_time) + ' sec'
+
+
+    def make_file(self,file):
+        file = file.replace('\r','')
+        
+        return file
+
 
     def get_open(self):
         ck = cookielib.CookieJar()
@@ -40,7 +86,7 @@ class POJ:
             return urllib2.build_opener(ckhdr)
         else:
             return  urllib2.build_opener(ckhdr, urllib2.ProxyHandler(self.proxies))
-            
+        
     def get_url(self):
         return 'http://acm.pku.edu.cn/JudgeOnline/problem?id='+self.problem_id
 
@@ -65,6 +111,15 @@ class POJ:
         print 'Submit ... ' + str(proc.geturl())
         
         time.sleep(2.0)
+
+        self.get_result()
+        p = re.compile('</a></td><td><font color=blue>(.+?)</font></td><td>',re.M|re.S|re.I)
+        
+
+        
+
+
+
         self.show_status()
         
     def show_status(self):
@@ -74,11 +129,15 @@ class POJ:
         return self.problem_id+'.cpp'
         
     def compile(self):
-        return subprocess.call(['g++','-O2','-o','a.out','-Wno-deprecated','-Wall',self.get_file_name]) == 0
+        return subprocess.call(['g++','-O2','-o','a.out','-Wno-deprecated','-Wall',self.get_file_name()]) == 0
 
     def execute(self,input_file,output_file):
         start_time = time.time();
-        p = subprocess.Popen(['./a.out'], stdin=open(input_file_path, 'r'), stdout=open(output_file_path, 'w'))
+
+        p = subprocess.Popen(['./a.out'], stdin=open(input_file,'r'), stdout=open(output_file,'w'))
+        
+        print open(output_file).read()
+
         if p.wait() != 0:
             print 'RuntimeError?'
             exit(-1)
@@ -86,9 +145,12 @@ class POJ:
         return end_time - start_time
 
     def download(self):
-        html=urllib.urlopne('http://acm.pku.cn/JudgeOnline/problem?id='+self.problem_id,proxies=self.proxies).read()
+        self.html=urllib.urlopen('http://poj.org/problem?id='+self.problem_id,proxies=self.proxies).read()
 
-        
+    def get_result(self):
+        self.result=urllib.urlopen('http://poj.org/status?problem_id=&user_id="+usr+"&result=&language=').read()
+
+
         
 
 def main():
@@ -115,7 +177,7 @@ def main():
         status.submit()
         return
 
-
+    status.check()
     
 if __name__ == '__main__':
     main()
