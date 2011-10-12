@@ -120,12 +120,12 @@ class POJ:
         print '[Result] '+str(rs1[1])
         print '[Memory]: ' + str(rs2[9]) + ' [Time]: ' + str(rs2[10]) + ' [Submit Time]: ' + str(rs2[13])
 
+
         
 
 
 
        # self.show_status()
-        
     def show_status(self):
         webbrowser.open("http://poj.org/status?problem_id=&user_id="+usr+"&result=&language=")
 
