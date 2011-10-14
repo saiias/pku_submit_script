@@ -1,0 +1,12 @@
+this is pku-submit-script
+
+
+How to use
+
+edit 
+usr = "Your POJ User Name"
+
+command [OPTION] problem_ID
+ -s Submit solution
+ -t Using Titech Proxy
+ -o Show Your Status

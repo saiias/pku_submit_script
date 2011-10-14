@@ -17,7 +17,7 @@ import popen2
 
 from optparse import OptionParser
 
-usr="saiias"
+usr=""
 
 class POJ:
     def __init__(self,options,problem_id):
@@ -59,7 +59,7 @@ class POJ:
             
 
 
-        if exe_time > temp_time:
+        if exe_time < temp_time:
             exe_time = temp_time
 
         
@@ -75,7 +75,9 @@ class POJ:
 
     def make_file(self,file):
         file = file.replace('\r','')
-        
+        if not file.endswith('\n'):
+            file += '\n'
+
         return file
 
 
@@ -120,11 +122,6 @@ class POJ:
         print '[Result] '+str(rs1[1])
         print '[Memory]: ' + str(rs2[9]) + ' [Time]: ' + str(rs2[10]) + ' [Submit Time]: ' + str(rs2[13])
 
-
-        
-
-
-
        # self.show_status()
     def show_status(self):
         webbrowser.open("http://poj.org/status?problem_id=&user_id="+usr+"&result=&language=")
@@ -139,8 +136,6 @@ class POJ:
         start_time = time.time();
 
         p = subprocess.Popen(['./a.out'], stdin=open(input_file,'r'), stdout=open(output_file,'w'))
-        
-        print open(output_file).read()
 
         if p.wait() != 0:
             print 'RuntimeError?'
@@ -152,7 +147,7 @@ class POJ:
         self.html=urllib.urlopen('http://poj.org/problem?id='+self.problem_id,proxies=self.proxies).read()
 
     def get_result(self):
-        self.result=urllib.urlopen('http://poj.org/status?problem_id=&user_id='+usr+'&result=&language=').read()
+        self.result=urllib.urlopen('http://poj.org/status?problem_id=&user_id='+usr+'&result=&language=',proxies=self.proxies).read()
 
 
         
