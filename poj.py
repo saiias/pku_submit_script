@@ -115,12 +115,13 @@ class POJ:
         time.sleep(2.0)
         self.get_result()
 
-        p1 = re.compile('<font color=blue>(.+?)</font>',re.M|re.S|re.I)
         p2 = re.compile('<td>(.+?)</td>',re.M|re.S|re.I)
-        rs1 =p1.findall(self.result)
+        p3 = re.compile('Accepted|Wrong Answer|Memory Limit Exceeded|Time Limit Exceeded|Runtime Error|Compile Error|Presentation Error|Output Limit Exceeded',re.M|re.S|re.I)
         rs2 = p2.findall(self.result)
-        print '[Result] '+str(rs1[1])
-        print '[Memory]: ' + str(rs2[9]) + ' [Time]: ' + str(rs2[10]) + ' [Submit Time]: ' + str(rs2[13])
+        rs3 =p3.findall(self.result)
+        print '[Result] '+str(rs3[8])
+        if (rs3[8] == "Accepted"):
+            print '[Memory]: ' + str(rs2[9]) + ' [Time]: ' + str(rs2[10]) + ' [Submit Time]: ' + str(rs2[13])
 
        # self.show_status()
     def show_status(self):
