@@ -18,7 +18,7 @@ import popen2
 from optparse import OptionParser
 
 usr=""
-
+dir=""
 class POJ:
     def __init__(self,options,problem_id):
         self.option=options
@@ -50,12 +50,12 @@ class POJ:
         for index in range(len(result)):
             self.input_file= self.problem_id +'_in.txt'
             self.output_file = self.problem_id +'_out.txt'
-            open(self.input_file,'w').write(self.make_file(result[0]))
-            open(self.output_file,'w').write(self.make_file(result[1]))
+            open(dir+self.input_file,'w').write(self.make_file(result[0]))
+            open(dir+self.output_file,'w').write(self.make_file(result[1]))
             
             exe_time = 0.0
             
-            temp_time = self.execute(self.input_file,'result.txt')
+            temp_time = self.execute(dir+self.input_file,dir+'result.txt')
             
 
 
@@ -63,7 +63,7 @@ class POJ:
             exe_time = temp_time
 
         
-        if self.check_diff(self.output_file,'result.txt'):
+        if self.check_diff(dir+self.output_file,dir+'result.txt'):
             print''
             print 'OK'
             print 'time: '+str(exe_time) + ' sec'
