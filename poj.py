@@ -1,4 +1,4 @@
-#!/usr/bin/
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -14,11 +14,12 @@ import time
 import cookielib
 import shutil
 import popen2
-
+import os.path
 from optparse import OptionParser
 
 usr=""
-dir=""
+dir=""+'/'
+
 class POJ:
     def __init__(self,options,problem_id):
         self.option=options
@@ -36,33 +37,31 @@ class POJ:
 
     def check(self):
         print "Compile ... "
-        
         if not self.compile():
             print 'Compile Error'
             exit(-1)
             
-        print 'Download ... '
+        self.input_file= self.problem_id +'_in.txt'
+        self.output_file = self.problem_id +'_out.txt'
+
+        if(not os.path.isfile(dir+self.problem_id+'_in.txt')):
+           
+            print 'Download ... '
+            self.download()
         
-        self.download()
-        
-        p = re.compile('<pre class="sio">(.+?)</pre>',re.M|re.S|re.I)
-        result = p.findall(self.html)
-        for index in range(len(result)):
-            self.input_file= self.problem_id +'_in.txt'
-            self.output_file = self.problem_id +'_out.txt'
-            open(dir+self.input_file,'w').write(self.make_file(result[0]))
-            open(dir+self.output_file,'w').write(self.make_file(result[1]))
+            p = re.compile('<pre class="sio">(.+?)</pre>',re.M|re.S|re.I)
+            result = p.findall(self.html)
+            for index in range(len(result)):
+                open(dir+self.input_file,'w').write(self.make_file(result[0]))
+                open(dir+self.output_file,'w').write(self.make_file(result[1]))
             
-            exe_time = 0.0
-            
-            temp_time = self.execute(dir+self.input_file,dir+'result.txt')
-            
+        exe_time = 0.0
+        temp_time = self.execute(dir+self.input_file,dir+'result.txt')
 
 
         if exe_time < temp_time:
             exe_time = temp_time
 
-        
         if self.check_diff(dir+self.output_file,dir+'result.txt'):
             print''
             print 'OK'
