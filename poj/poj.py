@@ -152,7 +152,7 @@ class POJ:
 
         
 
-0def main():
+def main():
     parser = OptionParser();
     parser.add_option("-s","--submit",action="store_true",dest="submit",default=False,help="Submit program");
     parser.add_option("-t","--titech",action="store_true",dest="titech",default=False,help="Use titech proxy");
