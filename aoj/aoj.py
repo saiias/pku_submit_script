@@ -17,8 +17,8 @@ import popen2
 import os.path
 from optparse import OptionParser
 
-usr="sa__i"
-dir="in_out"+'/'
+usr=""
+dir=""+'/'
 
 class AOJ:
     def __init__(self,options,problem_id):
