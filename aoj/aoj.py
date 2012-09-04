@@ -48,7 +48,16 @@ class AOJ:
         while s.startswith('\n'):
             s = s[1:]
         return s
-    
+
+    def get_result(self):
+        url = 'http://judge.u-aizu.ac.jp/onlinejudge/webservice/status_log?user_id='
+        proc = urllib.urlopen(url+usr).read()
+        tree = fromstring(proc)
+        items = tree.findall('status')
+        status = items[0].find("status").text.rstrip().lstrip()
+        submittime = items[0].find("submission_date_str").text.rstrip().lstrip()
+        print '[Result]: '+status+'    [Submit Time]: ' + submittime
+
     def check(self):
         print "Compile ... "
         if not self.compile():
@@ -122,7 +131,10 @@ class AOJ:
         parameter= urllib.urlencode(postdata)
         proc = opener.open('http://judge.u-aizu.ac.jp/onlinejudge/servlet/Submit', parameter)
         print 'Submit ... '
-        
+        time.sleep(5.0)
+
+        self.get_result()
+
     def show_status(self):
         webbrowser.open("http://judge.u-aizu.ac.jp/onlinejudge/user.jsp?id="+usr)
 
